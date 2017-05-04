@@ -5,5 +5,6 @@ def extr_hi_bits(bits, width):
 def extr_lo_bits(bits, width):
     return (bits & ((1 << width) - 1))
 
+"""Bits in the [x, y) range"""
 def extr_range(bits, x, y):
     return extr_lo_bits(bits >> x, (y - x))
