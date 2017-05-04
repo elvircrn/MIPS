@@ -1,4 +1,5 @@
 from instrmem import *
+from bitmanip import *
 
 class MIPS(object):
     def __init__(self, pc, instructions):
@@ -36,7 +37,22 @@ class MIPS(object):
         }
 
     def exectue(self, instruction):
-        
+        opcode = extr_hi_bits(instruction, 6)
+        rs = extr_range(instruction, 21, 26)
+        rt = extr_range(instruction, 16, 21)
+
+        # R type instruction
+        if opcode == 0:
+            rd = extr_range(instruction, 11, 16)
+            shamt = extr_range(instruction, 6, 11)
+            funct = extr_range(instruction, 0, 6)
+
+            self.registers.get_register(rd) = self.rtype_functions(funct)(self.registers.get_register(rt), shamt if funct < 4 else self.registers.get_register(rt))
+
+        # I type instruction
+        else:
+            imm = extr_(instruction, 0, 16)
+            self.registers.get_register(rt) = self.itype_functions(opcode)(self.registers.get_register(rs), imm)
 
     def execute_instructions(self):
         while pc < len(instructions):
