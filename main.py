@@ -5,6 +5,11 @@ table.draw()
 
 
 m = MIPS(0, [])
-m.parse_instruction("lw r0, 42(r1)")
+m.parse_instruction("lwi r0, 10")
+print m.registers[0]
 
 
+m.parse_instruction("r0, 10")
+
+
+m.ram.print_vals()

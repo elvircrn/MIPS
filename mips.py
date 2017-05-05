@@ -2,6 +2,7 @@ from instrmem import *
 from bitmanip import *
 import re
 from registers import *
+from ram import *
 
 class MIPS(object):
     def __init__(self, pc, instructions):
@@ -43,10 +44,16 @@ class MIPS(object):
     def parse_instruction(self, instr):
         words = re.compile('\w+').findall(instr)
 
-        if words[0] == "lw":
+        print words
+        
+        #load or store constants
+        if words[0] == "lwi"  and len(words) == 3:
+            imm = int(words[2])
+            self.registers[words[1]] = imm
+        elif words[0] == "lw":
             self.registers[words[1]] = self.registers[words[3]] + int(words[2])
         elif words[0] == "sw":
-            self.registers[words[1]] = self.registers[words[3]] + int(words[2])
+            self.registers[words[2]] = self.registers[words[3]] + int(words[1])
 
         return 0
 

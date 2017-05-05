@@ -5,10 +5,21 @@ class RegisterSet:
 
     def __getitem__(self, code):
         """ Register name given in the format R<id> """
-        if isinstance(code, string):
+        if isinstance(code, basestring):
             return self.registers[int(code[1:])]
 
         """ Register name given in the format <id> """
         return self.registers[code]
+
+    def __setitem__(self, code, value):
+        """ Register name given in the format R<id> """
+        if isinstance(code, basestring):
+            self.registers[int(code[1:])] = value
+
+        elif isinstance(code, int):
+            """ Register name given in the format <id> """
+            self.registers[int(code)] = value
+
+
 
     
