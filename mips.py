@@ -1,8 +1,8 @@
 from instrmem import *
 from bitmanip import *
 import re
-from registers import *
-from ram import *
+from registers import RegisterSet
+from ram import RAM
 
 class MIPS(object):
     def __init__(self, pc, instructions):
@@ -43,17 +43,27 @@ class MIPS(object):
     """ instr is of type string """
     def parse_instruction(self, instr):
         words = re.compile('\w+').findall(instr)
-
-        print words
         
-        #load or store constants
-        if words[0] == "lwi"  and len(words) == 3:
+        # Load/Store operations
+
+        # lui $rt, imm
+        if words[0] == "lui" and len(words) == 3:
             imm = int(words[2])
             self.registers[words[1]] = imm
+        # lw $rt, imm($rs)
         elif words[0] == "lw":
-            self.registers[words[1]] = self.registers[words[3]] + int(words[2])
+            imm = int(words[2])
+            rs = words[3]
+            rt = words[1]
+            self.registers[rt] = self.ram[self.registers[rs] + imm]
+        # sw $rt, imm($rs)
         elif words[0] == "sw":
-            self.registers[words[2]] = self.registers[words[3]] + int(words[1])
+            rt = words[1]
+            imm = int(words[2])
+            rs = words[3]
+            self.ram[self.registers[rs] + imm] = self.registers[rt]
+        else:
+            print "Cannot parse instruction: " + instr
 
         return 0
 

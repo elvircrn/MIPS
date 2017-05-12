@@ -3,6 +3,11 @@ class RegisterSet:
     def __init__(self):
         self.registers = [0 for _ in range(32)]
 
+    def print_values(self):
+        print "Registers:\n"
+        for i in xrange(len(self.registers)):
+            print "[" + str(i) + "]: " + str(self.registers[i])
+
     def __getitem__(self, code):
         """ Register name given in the format R<id> """
         if isinstance(code, basestring):
