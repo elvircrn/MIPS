@@ -1,6 +1,8 @@
-from instrmem import *
-from bitmanip import *
 import re
+
+from instrmem import InstrMem
+from bitmanip import *
+from instruction import Instruction
 from registers import RegisterSet
 from ram import RAM
 
@@ -10,7 +12,7 @@ class MIPS(object):
         self.instructions = instructions
         self.registers = RegisterSet()
         self.ram = RAM()
-        self.history = []  # TODO: Implement instruction history for hazard detection
+        self.instr_buff = []
 
         self.strr_type = {
             "sll": (lambda x, y: x << y),
@@ -29,6 +31,14 @@ class MIPS(object):
             "nor": (lambda x, y: ~(x | y)),
             "slt": (lambda x, y: x < y),
             "sltu": (lambda x, y: x < y)
+        }
+
+        self.stri_type = {
+            "addi": (lambda x, y: x + y),
+            "addiu": (lambda x, y: x + y),
+            "andi": (lambda x, y: x & y),
+            "ori": (lambda x, y: x | y),
+            "xori": (lambda x, y: x ^ y),
         }
 
         self.rtype_functions = {
@@ -63,6 +73,7 @@ class MIPS(object):
     """ instr is of type string """
     def parse_instruction(self, instr):
         words = re.compile('\w+').findall(instr)
+        self.instr_buff.append(Instruction(words[0], words[1:]))
 
         instr = words[0]
         
@@ -97,6 +108,12 @@ class MIPS(object):
             rs = words[2]
             rt = words[3]
             self.registers[rd] = self.strr_type[instr](self.registers[rs], self.registers[rt])
+        # i-type alul instructions
+        elif instr in self.stri_type:
+            imm = int(words[3])
+            rt = words[1]
+            rs = words[2]
+            self.registers[rt] = self.stri_type[instr](self.registers[rs], imm)
         else:
             print "Cannot parse instruction: " + instr
 

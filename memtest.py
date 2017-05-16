@@ -9,5 +9,4 @@ def mem_test():
     assert(m.ram[10] == 10)
     assert(m.registers[1] == 10)
 
-
     print "Memory tests passed"
