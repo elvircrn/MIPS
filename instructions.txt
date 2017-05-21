@@ -1,0 +1,6 @@
+add r6, r16, r5
+sub r1, r6, r3
+or r8, r6, r2
+lw r1, 100(r7)
+xor r10, r1, r11
+sw r3, 50(r0)

@@ -2,7 +2,7 @@ from table import Table
 
 class RAM:
     def __init__(self):
-        self.ram = [0 for _ in xrange(16)]
+        self.ram = [0 for _ in xrange(200)]
     
     def print_vals(self):
         print "RAM:\n"

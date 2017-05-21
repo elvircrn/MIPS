@@ -9,19 +9,45 @@ class Table:
         self.character = '*'
 
         # TODO: Find a better way to initialize a matrix
-        s = ' ' * self.default_size
-        row = [s for _ in xrange(self.default_width)]
-        self.values = [copy.copy(row) for _ in xrange(self.default_height)]
+        #s = ' ' * self.default_size
+        #row = [s for _ in xrange(self.default_width)]
+        #self.values = [copy.copy(row) for _ in xrange(self.default_height)]
+        self.values = []
 
     def nrow(self):
         return len(self.values)
 
+    def is_dash(self, x, y):
+        return (x != 0 and y < (len(self.values[x - 1])) and (self.values[x - 1][y] == "RAW"))
+    
     def _write_full(self, x, y):
-        self.values[x][y] = "IF"
-        self.values[x][y + 1] = "ID"
-        self.values[x][y + 2] = "EX"
-        self.values[x][y + 3] = "MEM"
-        self.values[x][y + 4] = "WB"
+        cycles = ["IF", "ID", "EX", "MEM", "WB"]
+        i = 0
+        row = y * [' ']
+        while(i < len(cycles)):
+            if(self.is_dash(x, y)):
+                row.extend(["-"])
+            elif(x != 0 and i==0 and (self.values[x - 1][y] in ["IF", "-", " "])):
+                row.extend([" "])
+            else:
+                row.extend([cycles[i]])
+                i += 1
+            y += 1
+        self.values.append(row)
+
+    def stall_till_wb(self, y):
+        l = len(self.values)
+        ind = self.values[l - 1].index("ID")
+        ind += 1
+        while(self.values[l - 1][ind] in ["-", "RAW"]):
+            ind += 1
+        ind2 = self.values[y].index("WB")
+        n = ind2 - ind + 1
+        if(n > 0):
+            row = self.values[l - 1][0 : ind]
+            row.extend(["RAW"] * n)
+            row.extend(self.values[l - 1][ind:])
+            self.values[l - 1] = row      
 
     def ncol(self):
         if (self.nrow() > 0):
@@ -37,7 +63,15 @@ class Table:
         s = sum([self.col_maxw(x) for x in xrange(0, self.ncol())])
         stdout.write(self.character * (s + self.ncol() + 1))
 
+    def pad(self):
+        l = len(self.values)
+        if(l > 1):
+            s = len(self.values[l - 1])
+            for i in range(l - 1):
+                self.values[i].extend([' '] * (s - len(self.values[i])))
+
     def draw(self):
+        self.pad()
         self._draw_line()
         stdout.write('\n')
         for i in xrange(len(self.values)):
@@ -49,4 +83,5 @@ class Table:
             stdout.write('\n')
             self._draw_line()
             stdout.write('\n')
-
+        
+        #print self.values
