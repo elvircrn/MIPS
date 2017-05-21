@@ -6,6 +6,7 @@ from instruction import Instruction
 from registers import RegisterSet
 from ram import RAM
 from table import Table
+from copy import deepcopy
 
 class MIPS(object):
     def __init__(self, pc, instructions):
@@ -14,6 +15,8 @@ class MIPS(object):
         self.registers = RegisterSet()
         self.ram = RAM()
         self.instr_buff = []
+        self.ram_hist = []
+        self.reg_hist = []
 
         self.strr_type = {
             "sll": (lambda x, y: x << y),
@@ -115,8 +118,11 @@ class MIPS(object):
             rt = words[1]
             rs = words[2]
             self.registers[rt] = self.stri_type[instr](self.registers[rs], imm)
-        else:
+        elif instr.lower() != "nop":
             print "Cannot parse instruction: " + instr
+
+        self.reg_hist.append(deepcopy(self.registers))
+        self.ram_hist.append(deepcopy(self.ram))
 
         return 0
 
@@ -150,7 +156,6 @@ class MIPS(object):
             table._write_full(i, i)
             instr = self.instr_buff[i]
             read_regs = []
-            print instr.code
             if(instr.code == "lw"):
                 read_regs = [instr.tokens[2]]
             elif(instr.code == "sw"):
@@ -160,9 +165,9 @@ class MIPS(object):
             elif instr.code in self.strr_type:
                 read_regs = [instr.tokens[1], instr.tokens[2]]
             for j in range(1, min(i, 5) + 1):
-                if(self.writes_to_any(self.instr_buff[i - j], read_regs)):
-                   table.stall_till_wb(i - j)
-                   break
+                if (self.writes_to_any(self.instr_buff[i - j], read_regs)):
+                    table.stall_till_wb(i - j)
+                break
         table.draw()
 
     def writes_to_any(self, instr, regs):
@@ -172,10 +177,10 @@ class MIPS(object):
         return 0
         
     def writes_to(self, instr, reg):
-        #print "testing if " + instr.code + " regs: " + str(instr.tokens) + " writes to " + str(reg)
+        # print "testing if " + instr.code + " regs: " + str(instr.tokens) + " writes to " + str(reg)
         if(instr.code == "lw" or instr.code == "lui" or instr.code in self.strr_type or instr.code in self.stri_type):
             if(reg == instr.tokens[0]):
-        #        print "it does"
+                # print "it does"
                 return 1
-        #print "it does not"
+        # print "it does not"
         return 0

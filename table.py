@@ -9,9 +9,9 @@ class Table:
         self.character = '*'
 
         # TODO: Find a better way to initialize a matrix
-        #s = ' ' * self.default_size
-        #row = [s for _ in xrange(self.default_width)]
-        #self.values = [copy.copy(row) for _ in xrange(self.default_height)]
+        # s = ' ' * self.default_size
+        # row = [s for _ in xrange(self.default_width)]
+        # self.values = [copy.copy(row) for _ in xrange(self.default_height)]
         self.values = []
 
     def nrow(self):
